@@ -35,6 +35,24 @@ services:
       - /srv/docker/ha-dockermon:/config
     ports:
       - "8126:8126"
+  nginx:
+    image: nginx:1.15-alpine
+    restart: unless-stopped
+    volumes:
+      - /srv/docker/nginx:/etc/nginx/conf.d
+      - /srv/docker/certbot/conf:/etc/letsencrypt
+      - /srv/docker/certbot/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - /srv/docker/certbot/conf:/etc/letsencrypt
+      - /srv/docker/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
   homeassistant:
     container_name: home-assistant
     restart: unless-stopped
