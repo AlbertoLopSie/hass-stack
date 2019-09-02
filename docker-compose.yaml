@@ -1,0 +1,70 @@
+version: '3.1'
+services:
+  syncthing:
+    container_name: hass-sync
+    restart: unless-stopped
+    image: linuxserver/syncthing
+    volumes:
+#     - /srv/docker/syncthing:/config
+#     - /srv/docker/hass-config:/sync
+      - /srv/docker:/config
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: host
+    environment:
+      - PGID=0
+      - PUID=0
+  mqtt:
+    container_name: MQTT
+    restart: unless-stopped
+    image: eclipse-mosquitto
+    privileged: true
+    volumes:
+      - /srv/docker/mosquitto/config:/mosquitto/config
+      - /srv/docker/mosquitto/log:/mosquitto/log
+      - /srv/docker/mosquitto/data:/mosquitto/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+  hadockermon:
+    container_name: ha-dockermon
+    restart: unless-stopped
+    image: philhawthorne/ha-dockermon
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/docker/ha-dockermon:/config
+    ports:
+      - "8126:8126"
+  homeassistant:
+    container_name: home-assistant
+    restart: unless-stopped
+#   image: homeassistant/home-assistant
+    build:
+      context: .
+      dockerfile: hass-custom-ozw-dockerfile
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    volumes:
+      - /srv/docker/hass/config:/config
+      - /srv/docker/hass/media:/media
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: host
+    privileged: true
+  nodered1:
+    container_name: node-red-1
+    restart: unless-stopped
+    image: nodered/node-red-docker:v8
+    depends_on:
+      - "homeassistant"
+    user: root
+    volumes:
+      - /srv/docker/node-red-1/user:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /root/.ssh:/root/.ssh:ro
+    ports:
+      - "1880:1880"
+#  portainer:
+#    container_name: poortainer
+#    restart: unless-stopped
+#    image: portainer/portainer
+
