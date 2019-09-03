@@ -1,13 +1,33 @@
 version: '3.1'
 services:
+#  portainer:
+#    container_name: poortainer
+#    restart: unless-stopped
+#    image: portainer/portainer
+  portainer:
+    container_name: portainer
+    image: portainer/portainer
+    restart: unless-stopped
+    volumes:
+      - /srv/docker/portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9000:9000"
   syncthing:
     container_name: hass-sync
     restart: unless-stopped
     image: linuxserver/syncthing
     volumes:
-#     - /srv/docker/syncthing:/config
+      - /srv/docker/syncthing:/config
 #     - /srv/docker/hass-config:/sync
-      - /srv/docker:/config
+#      - /srv/docker:/config
+      - /srv/docker/portainer:/sync/portainer
+      - /srv/docker/hass:/sync/hass
+      - /srv/docker/ha-dockermon:/sync/ha-dockermon
+      - /srv/docker/nodered:/sync/nodered
+      - /srv/docker/mosquitto:/sync/mosquitto
+      - /srv/docker/nginx:/sync/nginx
+      - /srv/docker/certbot:/sync/certbot
       - /etc/localtime:/etc/localtime:ro
     network_mode: host
     environment:
@@ -35,28 +55,28 @@ services:
       - /srv/docker/ha-dockermon:/config
     ports:
       - "8126:8126"
-  nginx:
-    image: nginx:1.15-alpine
-    restart: unless-stopped
-    volumes:
-      - /srv/docker/nginx:/etc/nginx/conf.d
-      - /srv/docker/certbot/conf:/etc/letsencrypt
-      - /srv/docker/certbot/www:/var/www/certbot
-    ports:
-      - "80:80"
-      - "443:443"
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-  certbot:
-    image: certbot/certbot
-    restart: unless-stopped
-    volumes:
-      - /srv/docker/certbot/conf:/etc/letsencrypt
-      - /srv/docker/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+#  nginx:
+#    image: nginx:1.15-alpine
+#    restart: unless-stopped
+#    volumes:
+#      - /srv/docker/nginx:/etc/nginx/conf.d
+#      - /srv/docker/certbot/conf:/etc/letsencrypt
+#      - /srv/docker/certbot/www:/var/www/certbot
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+#  certbot:
+#    image: certbot/certbot
+#    restart: unless-stopped
+#    volumes:
+#      - /srv/docker/certbot/conf:/etc/letsencrypt
+#      - /srv/docker/certbot/www:/var/www/certbot
+#    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
   homeassistant:
     container_name: home-assistant
     restart: unless-stopped
-#   image: homeassistant/home-assistant
+#    image: albertols/hass-custom-ozw
     build:
       context: .
       dockerfile: hass-custom-ozw-dockerfile
@@ -65,6 +85,8 @@ services:
     volumes:
       - /srv/docker/hass/config:/config
       - /srv/docker/hass/media:/media
+      - /srv/docker/hass/data:/data
+      - /srv/docker/hass/logs:/halogs
       - /etc/localtime:/etc/localtime:ro
     network_mode: host
     privileged: true
@@ -81,8 +103,4 @@ services:
       - /root/.ssh:/root/.ssh:ro
     ports:
       - "1880:1880"
-#  portainer:
-#    container_name: poortainer
-#    restart: unless-stopped
-#    image: portainer/portainer
 

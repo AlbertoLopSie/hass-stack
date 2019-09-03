@@ -1,0 +1,27 @@
+#FROM homeassistant/home-assistant
+FROM albertols/hass-custom-ozw
+
+VOLUME /data
+VOLUME /halogs
+
+# BEGIN patches  from https://community.home-assistant.io/t/compile-ozw-from-git-branch-in-pyozw/33790/3
+#RUN cd /tmp && curl https://codeload.github.com/AlbertoLopSie/open-zwave/tar.gz/ha-curr-vers | tar zxv && mv /tmp/open-zwave-ha-curr-vers /tmp/openzwave
+#RUN mkdir -p /tmp/pyozwbuild/python-openzwave && mv /tmp/openzwave /tmp/pyozwbuild/python-openzwave/
+#RUN apk update && apk add git make g++ coreutils linux-headers eudev-dev python3-dev python-dev cython python3 py-pip py3-pip build-base yaml-dev
+#RUN pip3 install --no-cache-dir python_openzwave==0.4.11 --upgrade --no-deps --force-reinstall --install-option="--flavor=dev" -b /tmp/pyozwbuild
+# END patches
+
+# BEGIN Redirect log and data folders
+ADD sbin/* /usr/local/sbin/
+#ADD mklinks.service /etc/systemd/system/
+RUN chmod +x /usr/local/sbin/* 
+#    chmod 664 /etc/systemd/system/mklinks.service; \
+#    systemctl enable mklinks.service
+ENTRYPOINT ["mklinks"]
+CMD [ "python", "-m", "homeassistant", "--config", "/config" ]
+#CMD ["sh", "-c", "/usr/local/sbin/mklinks"]
+#CMD mvln home-assistant_v2.db /config /data
+#CMD mvln lianda.db /config /data
+#CMD mvln home-assistant.log /config /halogs
+#CMD mvln OZW_Log.txt /config /halogs
+# END
