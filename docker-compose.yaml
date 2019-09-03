@@ -1,9 +1,5 @@
 version: '3.1'
 services:
-#  portainer:
-#    container_name: poortainer
-#    restart: unless-stopped
-#    image: portainer/portainer
   portainer:
     container_name: portainer
     image: portainer/portainer
@@ -13,14 +9,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9000:9000"
+
   syncthing:
     container_name: hass-sync
     restart: unless-stopped
     image: linuxserver/syncthing
     volumes:
       - /srv/docker/syncthing:/config
-#     - /srv/docker/hass-config:/sync
-#      - /srv/docker:/config
       - /srv/docker/portainer:/sync/portainer
       - /srv/docker/hass:/sync/hass
       - /srv/docker/ha-dockermon:/sync/ha-dockermon
@@ -33,6 +28,7 @@ services:
     environment:
       - PGID=0
       - PUID=0
+
   mqtt:
     container_name: MQTT
     restart: unless-stopped
@@ -46,6 +42,7 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
+
   hadockermon:
     container_name: ha-dockermon
     restart: unless-stopped
@@ -55,6 +52,7 @@ services:
       - /srv/docker/ha-dockermon:/config
     ports:
       - "8126:8126"
+
 #  nginx:
 #    image: nginx:1.15-alpine
 #    restart: unless-stopped
@@ -66,6 +64,7 @@ services:
 #      - "80:80"
 #      - "443:443"
 #    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
 #  certbot:
 #    image: certbot/certbot
 #    restart: unless-stopped
@@ -73,6 +72,7 @@ services:
 #      - /srv/docker/certbot/conf:/etc/letsencrypt
 #      - /srv/docker/certbot/www:/var/www/certbot
 #    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
   homeassistant:
     container_name: home-assistant
     restart: unless-stopped
@@ -90,6 +90,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     network_mode: host
     privileged: true
+
   nodered1:
     container_name: node-red-1
     restart: unless-stopped
