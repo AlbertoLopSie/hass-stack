@@ -59,6 +59,7 @@ services:
     volumes:
       - /srv/docker/nginx/conf:/etc/nginx/conf.d
       - /srv/docker/nginx/log:/nginxlog
+      - /srv/docker/nginx/htpasswd:/htpasswd
       - /srv/docker/certbot/conf:/etc/letsencrypt
       - /srv/docker/certbot/www:/var/www/certbot
     ports:
