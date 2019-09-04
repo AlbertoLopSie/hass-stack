@@ -118,3 +118,13 @@ services:
       - /root/.ssh:/root/.ssh:ro
     ports:
       - "1880:1880"
+
+  cloud9: # https://hub.docker.com/r/sapk/cloud9/
+    container_name: cloud9
+    image: sapk/cloud9
+    restart: unless-stopped
+    volumes:
+      - /srv/docker:/workspace
+    command: --auth user:password
+    ports:
+      - “8181:8181”
