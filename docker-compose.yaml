@@ -99,8 +99,8 @@ services:
 #   ports:
 #      - "8123:8123"
 
-  nodered1:
-    container_name: node-red-1
+  nodered:
+    container_name: nodered
     restart: unless-stopped
     image: nodered/node-red-docker:v8
     depends_on:
