@@ -4,10 +4,10 @@ FROM albertols/hass-custom-ozw
 VOLUME /data
 VOLUME /halogs
 ADD sbin/* /usr/local/sbin/
-RUN chmod +x /usr/local/sbin/* 
+RUN chmod +x /usr/local/sbin/*
+RUN apk add --update sqlite
 
 # From https://success.docker.com/article/use-a-script-to-initialize-stateful-container-data
 ENTRYPOINT ["mklinks"]
 CMD [ "python", "-m", "homeassistant", "--config", "/config" ]
 # END
-

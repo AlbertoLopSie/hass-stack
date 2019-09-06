@@ -1,5 +1,22 @@
 version: '3.1'
 services:
+  glances:
+    container_name: glances
+#   image: nicolargo/glances
+#   image: nicolargo/glances:latest-alpine
+    build:
+      context: .
+      dockerfile: glances-custom-dockerfile
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+#      - GLANCES_OPT="-w"
+       - "GLANCES_OPT=-w"
+    pid: host
+    network_mode: host 
+    privileged: true
+
   portainer:
     container_name: portainer
     image: portainer/portainer
@@ -23,6 +40,7 @@ services:
       - /srv/docker/mosquitto:/sync/mosquitto
       - /srv/docker/nginx:/sync/nginx
       - /srv/docker/certbot:/sync/certbot
+      - /home/alberto:/sync/home
       - /etc/localtime:/etc/localtime:ro
     network_mode: host
     environment:

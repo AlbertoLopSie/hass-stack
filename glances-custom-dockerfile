@@ -1,0 +1,4 @@
+FROM nicolargo/glances:latest-alpine
+
+RUN apk add --update py-pip
+RUN pip install glances[docker]
