@@ -14,7 +14,7 @@ services:
 #      - GLANCES_OPT="-w"
        - "GLANCES_OPT=-w"
     pid: host
-    network_mode: host 
+    network_mode: host
     privileged: true
 
   portainer:
@@ -83,13 +83,20 @@ services:
       - /srv/docker/certbot/www:/var/www/certbot
     ports:
       - "80:80"
-      - "8133:8133"
-      - "8134:8134"
-      - "8135:8135"
-      - "8136:8136"
-      - "8137:8137"
-      - "8138:8138"
-      - "8139:8139"
+ #     - "8133:8133"
+ #     - "8134:8134"
+ #     - "8135:8135"
+ #     - "8136:8136"
+ #     - "8137:8137"
+ #     - "8138:8138"
+ #     - "8139:8139"
+      - "8123:8123"
+      - "8124:8124"
+      - "8125:8125"
+#      - "8126:8126"
+      - "8127:8127"
+      - "8128:8128"
+      - "8129:8129"
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
 
   certbot:
@@ -111,6 +118,9 @@ services:
       dockerfile: hass-custom-ozw-dockerfile
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
+      - /dev/ttyACM0:/dev/ttyAMA0
+      - /dev/ttyACM0:/dev/ttyUSB0
+      - /dev/ttyACM0:/dev/ttyUSB1
     volumes:
       - /srv/docker/hass/config:/config
       - /srv/docker/hass/media:/media
@@ -142,6 +152,7 @@ services:
     restart: unless-stopped
     volumes:
       - /srv/docker:/workspace
+      - /home/alberto:/workspace/home
     command: --auth alberto:appl3pi3
     ports:
       - "8181:8181"
