@@ -1,0 +1,30 @@
+# To be run with --build-args HA_TAG=<HA_TAG>
+#
+# HA_TAG is the tag of the Home Assistant image to base this on
+
+ARG HA_TAG
+FROM homeassistant/home-assistant:$HA_TAG
+
+VOLUME /data
+VOLUME /halogs
+
+# BEGIN patches  from https://community.home-assistant.io/t/compile-ozw-from-git-branch-in-pyozw/33790/3
+ADD sbin/* /usr/local/sbin/
+RUN cd /tmp \
+ && curl https://codeload.github.com/AlbertoLopSie/open-zwave/tar.gz/ha-curr-vers | tar zxv \
+ && mv /tmp/open-zwave-ha-curr-vers /tmp/openzwave \
+ && mkdir -p /tmp/pyozwbuild/python-openzwave \
+ && mv /tmp/openzwave /tmp/pyozwbuild/python-openzwave/ \
+ && apk add --virtual .build-deps --update --no-cache build-base git make g++ coreutils linux-headers eudev-dev python3-dev python-dev cython python3 py-pip py3-pip build-base yaml-dev \
+ && pip3 install --no-cache-dir python_openzwave==0.4.11 --upgrade --no-deps --force-reinstall --install-option="--flavor=dev" -b /tmp/pyozwbuild \
+ && apk del .build-deps \
+ && rm -rf /var/cache/apk/* \
+ && apk add sqlite \
+ && chmod +x /usr/local/sbin/*
+# END patches
+
+# From https://success.docker.com/article/use-a-script-to-initialize-stateful-container-data
+ENTRYPOINT ["mklinks"]
+
+# Original CMD in Home Assistant image
+CMD [ "python", "-m", "homeassistant", "--config", "/config" ]

@@ -1,17 +1,100 @@
+# 
+# ██╗  ██╗ █████╗ ███████╗███████╗    ███████╗████████╗ █████╗  ██████╗██╗  ██╗
+# ██║  ██║██╔══██╗██╔════╝██╔════╝    ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝
+# ███████║███████║███████╗███████╗    ███████╗   ██║   ███████║██║     █████╔╝ 
+# ██╔══██║██╔══██║╚════██║╚════██║    ╚════██║   ██║   ██╔══██║██║     ██╔═██╗ 
+# ██║  ██║██║  ██║███████║███████║    ███████║   ██║   ██║  ██║╚██████╗██║  ██╗
+# ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
+#                                                                              
+# 
+
 version: '3.1'
 services:
+
+#   homeassistant120:
+#     container_name: home-assistant-zxt120
+#     hostname: home-assistant
+#     restart: unless-stopped
+#     # image: homeassistant/home-assistant
+#     # image: albertols/ha-custom-ozw:0.99.3
+#     image: albertols/ha-custom-ozw-zxt120:0.99.3
+
+#     build:
+#       context: ./customized/homeassistant
+#       args:
+#         - HA_TAG=0.99.3
+# #     dockerfile: hass-custom-ozw-dockerfile
+#       # dockerfile: dockerfile-curr-vers
+#       dockerfile: dockerfile-zxt120
+#     devices:
+#       - /dev/ttyACM0:/dev/ttyACM0
+#       - /dev/ttyACM0:/dev/ttyAMA0
+#       - /dev/ttyACM0:/dev/ttyUSB0
+#       - /dev/ttyACM0:/dev/ttyUSB1
+#     volumes:
+#       - /srv/docker/hass/config:/config
+#       - /srv/docker/hass/media:/media
+#       - /srv/docker/hass/data:/data
+#       - /srv/docker/hass/logs:/halogs
+#       - /etc/localtime:/etc/localtime:ro
+#       - /var/run/docker.sock:/var/run/docker.sock
+#     network_mode: host
+#     privileged: true
+# #   ports:
+# #      - "8123:8123"
+
+
+  homeassistant:
+    container_name: home-assistant
+    hostname: home-assistant
+    restart: unless-stopped
+    # image: homeassistant/home-assistant
+    # image: albertols/ha-custom-ozw:0.99.3
+    # image: albertols/ha-custom-ozw:0.100.1
+    # image: albertols/ha-custom-ozw-zxt120:0.100.3
+    # image: albertols/ha-custom-ozw-zxt120:0.101.3
+    image: albertols/ha-custom-ozw-zxt120:0.109.6
+    # image: albertols/ha-custom-ozw-zxt120:0.110.1
+
+    build:
+      context: ./customized/homeassistant
+      args:
+        # - HA_TAG=0.99.3
+        # - HA_TAG=0.100.3
+        - HA_TAG=0.109.6
+        # - HA_TAG=0.110.1
+#     dockerfile: hass-custom-ozw-dockerfile
+      # dockerfile: dockerfile-curr-vers
+      dockerfile: dockerfile-zxt120
+    devices:
+      # - /dev/ttyACM0:/dev/ttyACM0
+      # - /dev/ttyACM0:/dev/ttyAMA0
+      # - /dev/ttyACM0:/dev/ttyUSB0
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyUSB1:/dev/ttyUSB1
+    volumes:
+      - /srv/docker/hass/config:/config
+      - /srv/docker/hass/media:/media
+      - /srv/docker/hass/data:/data
+      - /srv/docker/hass/logs:/halogs
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: host
+    privileged: true
+#   ports:
+#      - "8123:8123"
+
   glances:
     container_name: glances
 #   image: nicolargo/glances
 #   image: nicolargo/glances:latest-alpine
     build:
-      context: .
-      dockerfile: glances-custom-dockerfile
+      context: ./customized/glances
+#     dockerfile: glances-custom-dockerfile
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-#      - GLANCES_OPT="-w"
        - "GLANCES_OPT=-w"
     pid: host
     network_mode: host
@@ -61,15 +144,15 @@ services:
       - "1883:1883"
       - "9001:9001"
 
-  hadockermon:
-    container_name: ha-dockermon
-    restart: unless-stopped
-    image: philhawthorne/ha-dockermon
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /srv/docker/ha-dockermon:/config
-    ports:
-      - "8126:8126"
+  # hadockermon:
+  #   container_name: ha-dockermon
+  #   restart: unless-stopped
+  #   image: philhawthorne/ha-dockermon
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /srv/docker/ha-dockermon:/config
+  #   ports:
+  #     - "8126:8126"
 
   nginx:
     container_name: nginx
@@ -83,13 +166,6 @@ services:
       - /srv/docker/certbot/www:/var/www/certbot
     ports:
       - "80:80"
- #     - "8133:8133"
- #     - "8134:8134"
- #     - "8135:8135"
- #     - "8136:8136"
- #     - "8137:8137"
- #     - "8138:8138"
- #     - "8139:8139"
       - "8123:8123"
       - "8124:8124"
       - "8125:8125"
@@ -108,30 +184,6 @@ services:
       - /srv/docker/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
-  homeassistant:
-    container_name: home-assistant
-    hostname: home-assistant
-    restart: unless-stopped
-#    image: albertols/hass-custom-ozw
-    build:
-      context: .
-      dockerfile: hass-custom-ozw-dockerfile
-    devices:
-      - /dev/ttyACM0:/dev/ttyACM0
-      - /dev/ttyACM0:/dev/ttyAMA0
-      - /dev/ttyACM0:/dev/ttyUSB0
-      - /dev/ttyACM0:/dev/ttyUSB1
-    volumes:
-      - /srv/docker/hass/config:/config
-      - /srv/docker/hass/media:/media
-      - /srv/docker/hass/data:/data
-      - /srv/docker/hass/logs:/halogs
-      - /etc/localtime:/etc/localtime:ro
-    network_mode: host
-    privileged: true
-#   ports:
-#      - "8123:8123"
-
   nodered:
     container_name: nodered
     restart: unless-stopped
@@ -139,6 +191,8 @@ services:
     depends_on:
       - "homeassistant"
     user: root
+    environment:
+      - TZ=America/Argentina/Buenos_Aires
     volumes:
       - /srv/docker/nodered/user:/data
       - /etc/localtime:/etc/localtime:ro
@@ -156,3 +210,19 @@ services:
     command: --auth alberto:appl3pi3
     ports:
       - "8181:8181"
+
+
+  sqlite:
+    container_name: sqlite
+    build:
+      context: ./customized/sqlite-web
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/docker/hass/data:/data
+    environment:
+       - "SQLITE_DATABASE=home-assistant_v2.db"
+    ports:
+      - "8080:8080"
+
+

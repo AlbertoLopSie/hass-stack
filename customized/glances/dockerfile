@@ -1,0 +1,5 @@
+FROM nicolargo/glances:latest-alpine
+
+RUN apk add --update py-pip
+#RUN pip install glances[action,*browser*,cloud,cpuinfo,docker,export,folders,gpu,ip,*snmp*,web,wifi]
+RUN pip install glances[action,cloud,chart,cpuinfo,docker,folders,gpu,web,wifi]

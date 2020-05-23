@@ -1,0 +1,14 @@
+#!/bin/bash
+#echo "mklinks running..." > /halogs/debug.txt
+set -e
+
+if [ "$1" = 'python' ]; then
+#    echo "Initializing symlinks..." >> /halogs/debug.txt
+    mvln home-assistant_v2.db /config /data
+    mvln lianda.db /config /data
+    mvln home-assistant.log /config /halogs
+    mvln OZW_Log.txt /config /halogs
+fi
+
+#echo "exec $@" >> /halogs/debug.txt
+exec "$@"

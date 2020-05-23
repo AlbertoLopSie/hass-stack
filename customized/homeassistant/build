@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Check number of arguments
+if [ "$1" == "" ]; then
+    echo "
+   usage: build <home-assistant-tag>
+
+    Ex: build 0.98.1
+"
+   exit
+fi
+
+docker build --build-arg HA_TAG=$1 --tag albertols/ha-custom-ozw:$1 .

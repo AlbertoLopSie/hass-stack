@@ -1,0 +1,36 @@
+#!/bin/bash
+
+FILE=$1
+FROM=$2
+TARGET=$3
+
+# Check number of arguments
+if [ "$#" -ne 3 ]; then
+    echo "
+   mvln <file> <source-dir> <dest-dir> 
+     Moves <file> from <source-dir> to <target-dir> and replaces it with a symlink
+"
+   exit
+fi
+
+# If target file already exist then exit
+if [ -f "$TARGET/$FILE" ]; then
+    echo "$TARGET/$FILE already exists"
+    exit
+fi
+
+# If source file already is a symlink then exit
+if [ -h "$FROM/$FILE" ]; then
+    echo "$FROM/$FILE already is symlink"
+    exit
+fi
+
+# If source file does not exist create a dummy one
+if [ ! -f "$FROM/$FILE" ]; then
+    touch $FROM/$FILE 
+fi
+
+mv $FROM/$FILE $TARGET/$FILE
+ln -s $TARGET/$FILE $FROM/$FILE
+
+
